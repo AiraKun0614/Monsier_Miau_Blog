@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<h1 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white">All Blogs</h1>
+
+<!-- blogs pero en modo galeria o collage -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4">
+  {% for blog in object_list %}
+    <a href="{% url 'blogapp:blog_detail' blog.pk %}" class="block bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition hover:shadow-xl">
+      <div class="relative w-full pb-[100%] bg-gray-200">
+        <div class="absolute inset-0 bg-cover bg-center"
+             style="background-image: url('{% if blog.image %}{{ blog.image.url }}{% else %}{% static 'default_image.jpg' %}{% endif %}');">
+        </div>
+      </div>
+      <div class="p-4">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">{{ blog.title }}</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">by {{ blog.author.username }} – {{ blog.created_at }}</p>
+      </div>
+    </a>
+  {% empty %}
+    <p class="text-gray-500 dark:text-gray-400 text-center">No blogs have been posted yet.</p>
+  {% endfor %}
+</div>
+
+{% endblock %}

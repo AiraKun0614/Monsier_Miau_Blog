@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- intento de galeria con grid pero ya existia el blog list xD -->
+<div class="gallery-grid">
+    {% for post in posts %}
+    <div class="gallery-item">
+        <a href="{% url 'blogapp:post_detail' post.id %}">
+            <!-- imagen y cuadro -->
+            <div class="post-thumbnail"
+                style="background-image: url('{% if post.image %}{{ post.image.url }}{% else %}{% static 'default_image.jpg' %}{% endif %}');">
+            </div>
+            <!-- titulo y puedo agregar info del blog -->
+            <h2 class="post-title">{{ post.title }}</h2>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* configuracion del grid */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+    /* estilos q se aplican a cada post o bloque */
+    .gallery-item a {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    /* esto es para que la imagen sea cuadrada siempre, se ajuste */
+    .post-thumbnail {
+        width: 100%;
+        padding-top: 100%; /* esto garantiza la relación de aspecto 1:1 */
+        background-size: cover;
+        background-position: center;
+        border-radius: 5px;
+    }
+    /* estilo para el título */
+    .post-title {
+        text-align: center;
+        margin-top: 0.5rem;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
