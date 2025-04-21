@@ -1,13 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
-
-
+#from ckeditor.fields import RichTextField #Importa la libreria STEP 3
+from ckeditor_uploader.fields import RichTextUploadingField #Importa la libreria STEP 3
 # MODELOS
 
 class Blog(models.Model):
     title = models.CharField(max_length=200)
-    content = models.TextField()
+    content = RichTextUploadingField() #RickTextFiel de CKeditor STEP 3
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
