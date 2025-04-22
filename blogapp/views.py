@@ -6,6 +6,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
+from django.views.generic import CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from .models import Blog
+from .forms import BlogForm
 
 #vistas para el sistema de usuario
 
@@ -64,7 +69,7 @@ class BlogDetailView(DetailView):
 
 class BlogCreateView(LoginRequiredMixin, CreateView):
     model = Blog
-    fields = ['title', 'content']
+    form_class = BlogForm
     template_name = 'blogapp/blog_form.html'
 
     def form_valid(self, form):

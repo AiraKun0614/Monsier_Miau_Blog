@@ -1,5 +1,7 @@
 from django.urls import path
 from .views import BlogListView, BlogDetailView, ReviewCreateView, CommentCreateView, BlogCreateView, register, user_login, user_logout
+from django.contrib import admin
+from django.urls import path, include
 
 app_name = 'blogapp'
 
@@ -13,4 +15,6 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),
+    path('admin/', admin.site.urls),
+    path('tinymce/', include('tinymce.urls')),
 ]
