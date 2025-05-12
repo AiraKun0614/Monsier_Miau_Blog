@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Confirmar eliminación</h1>
+  <p class="text-gray-700 dark:text-gray-300 mb-4">¿Estás seguro de que quieres eliminar el blog <strong>{{ object.title }}</strong>? Esta acción no se puede deshacer.</p>
+  <form method="post" class="space-y-4">
+    {% csrf_token %}
+    <div class="flex space-x-4">
+      <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-all duration-500 ease-in-out">Eliminar</button>
+      <a href="{% url 'blogapp:blog_detail' object.pk %}" class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded transition-all duration-500 ease-in-out">Cancelar</a>
+    </div>
+  </form>
+{% endblock %}

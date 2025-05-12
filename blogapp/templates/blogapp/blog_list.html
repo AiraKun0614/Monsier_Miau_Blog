@@ -1,16 +1,58 @@
 {% extends 'base.html' %}
 {% block content %}
-  <h1 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white">All Blogs</h1>
-  <div class="grid gap-6">
-    {% for blog in object_list %}
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-700 ease-in-out dark:text-white text-gray-900 animate-fade-in">
-        <h2 class="text-xl font-semibold mb-2">
-          <a href="{% url 'blogapp:blog_detail' blog.pk %}" class="text-blue-400 hover:text-blue-300">{{ blog.title }}</a>
-        </h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">by {{ blog.author.username }} - {{ blog.created_at }}</p>
-      </div>
-    {% empty %}
-      <p class="text-gray-500 dark:text-gray-400 text-center">No blogs have been posted yet.</p>
-    {% endfor %}
-  </div>
+  <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Blogs</h1>
+  {% for blog in blogs %}
+    <article class="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg mb-4 transition-all duration-700 ease-in-out dark:text-white text-gray-900 animate-fade-in">
+      <h2 class="text-xl font-semibold mb-2">
+        <a href="{% url 'blogapp:blog_detail' blog.pk %}" class="text-blue-600 dark:text-blue-400 hover:underline">{{ blog.title }}</a>
+      </h2>
+      {% if blog.avg_rating %}
+        <p class="text-yellow-500 dark:text-yellow-400 mb-2">Promedio: {{ blog.avg_rating|floatformat:1 }}/5 ⭐ ({{ blog.reviews.count }} reseñas)</p>
+      {% else %}
+        <p class="text-gray-400 mb-2">Sin reseñas aún</p>
+      {% endif %}
+      <p class="text-gray-700 dark:text-gray-300 mb-2">{{ blog.content|safe|truncatewords:30 }}</p>
+      <p class="text-sm text-gray-600 dark:text-gray-500">By {{ blog.author.username }} - {{ blog.created_at }}</p>
+    </article>
+  {% empty %}
+    <p class="text-gray-400">No blogs available.</p>
+  {% endfor %}
+
+  {% if is_paginated %}
+    <nav class="mt-8 flex justify-center">
+      <ul class="flex space-x-2">
+        {% if page_obj.has_previous %}
+          <li>
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors">Anterior</a>
+          </li>
+        {% else %}
+          <li>
+            <span class="px-4 py-2 bg-gray-300 text-gray-500 rounded dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed">Anterior</span>
+          </li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <li>
+              <span class="px-4 py-2 bg-blue-800 text-white rounded dark:bg-blue-700">{{ num }}</span>
+            </li>
+          {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+            <li>
+              <a href="?page={{ num }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors">{{ num }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <li>
+            <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-colors">Siguiente</a>
+          </li>
+        {% else %}
+          <li>
+            <span class="px-4 py-2 bg-gray-300 text-gray-500 rounded dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed">Siguiente</span>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
 {% endblock %}

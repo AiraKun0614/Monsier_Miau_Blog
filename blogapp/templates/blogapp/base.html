@@ -69,54 +69,56 @@
   <main class="flex-grow w-full bg-white dark:bg-gray-900 transition-all duration-700 ease-in-out">
     <div class="max-w-4xl mx-auto px-4 py-8">
       {% if messages %}
-        <div class="mb-4">
-          {% for message in messages %}
-            <p class="text-{{ message.tags }}-500 dark:text-{{ message.tags }}-400">{{ message }}</p>
-          {% endfor %}
-        </div>
+          <div class="mb-6">
+              {% for message in messages %}
+                  <div class="p-4 rounded-lg bg-{{ message.tags }}-100 dark:bg-{{ message.tags }}-800 text-{{ message.tags }}-700 dark:text-{{ message.tags }}-200 shadow-md transition-all duration-300 animate-fade-in">
+                      {{ message }}
+                  </div>
+              {% endfor %}
+          </div>
       {% endif %}
-    {% block content %}{% endblock %}
+      {% block content %}{% endblock %}
     </div>
   </main>
 
   <script>
     // Persist dark mode setting
     document.addEventListener('DOMContentLoaded', () => {
-  const prefersDark = localStorage.getItem('theme') === 'dark';
-  const body = document.getElementById('body');
-  const icon = document.getElementById('theme-icon');
-  if (prefersDark) {
-  body.classList.add('dark');
-  if (icon) icon.textContent = '🌙';
-  const label = document.getElementById('theme-label');
-  if (label) label.textContent = 'Modo Oscuro';
-  } else {
-    if (icon) icon.textContent = '🌞';
-  const label = document.getElementById('theme-label');
-  if (label) label.textContent = 'Modo Claro';
-  }
-});
+      const prefersDark = localStorage.getItem('theme') === 'dark';
+      const body = document.getElementById('body');
+      const icon = document.getElementById('theme-icon');
+      if (prefersDark) {
+        body.classList.add('dark');
+        if (icon) icon.textContent = '🌙';
+        const label = document.getElementById('theme-label');
+        if (label) label.textContent = 'Modo Oscuro';
+      } else {
+        if (icon) icon.textContent = '🌞';
+        const label = document.getElementById('theme-label');
+        if (label) label.textContent = 'Modo Claro';
+      }
+    });
 
     function toggleDarkMode() {
-  const body = document.getElementById('body');
-  const icon = document.getElementById('theme-icon');
-  const isDark = body.classList.toggle('dark');
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  if (icon) {
-  icon.classList.add('rotate-180');
-  setTimeout(() => {
-    icon.textContent = isDark ? '🌙' : '🌞';
-    const label = document.getElementById('theme-label');
-    if (label) label.style.opacity = 0;
-    setTimeout(() => {
-      label.textContent = isDark ? 'Modo Oscuro' : 'Modo Claro';
-      label.style.opacity = 1;
-    }, 250);
-    icon.classList.remove('rotate-180');
-  }, 250);
-}
-}
-    
-</script>
+      const body = document.getElementById('body');
+      const icon = document.getElementById('theme-icon');
+      const isDark = body.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      if (icon) {
+        icon.classList.add('rotate-180');
+        setTimeout(() => {
+          icon.textContent = isDark ? '🌙' : '🌞';
+          const label = document.getElementById('theme-label');
+          if (label) label.style.opacity = 0;
+          setTimeout(() => {
+            label.textContent = isDark ? 'Modo Oscuro' : 'Modo Claro';
+            label.style.opacity = 1;
+          }, 250);
+          icon.classList.remove('rotate-180');
+        }, 250);
+      }
+    }
+  </script>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93bd520abd1f1d7e',t:'MTc0NjU4NTI4OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>

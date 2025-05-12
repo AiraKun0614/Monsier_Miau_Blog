@@ -1,9 +1,18 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% block content %}
-  <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Write a Review</h1>
-  <form method="post" class="space-y-4 transition-all duration-700 ease-in-out animate-fade-in">{% csrf_token %}
-    <div class="space-y-2 transition-all duration-700 ease-in-out">
+  <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Add Review</h1>
+  {% if messages %}
+    <div class="mb-4">
+      {% for message in messages %}
+        <p class="text-{{ message.tags }}-500 dark:text-{{ message.tags }}-400">{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+  <form method="post" class="space-y-4 transition-all duration-700 ease-in-out animate-fade-in">
+    {% csrf_token %}
+    {{ form.media }}  <!-- Necesario si CKEditor se usa en otros formularios -->
+    <div class="space-y-2">
       {% for field in form %}
         <div>
           <label for="{{ field.id_for_label }}" class="block text-sm font-medium mb-1 text-gray-900 dark:text-white">{{ field.label }}</label>
@@ -14,6 +23,6 @@
         </div>
       {% endfor %}
     </div>
-    <button type="submit" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white dark:bg-green-600 dark:hover:bg-green-700 rounded transition-all duration-500 ease-in-out">Submit Review</button>
+    <button type="submit" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700 rounded transition-all duration-500 ease-in-out">Submit Review</button>
   </form>
 {% endblock %}

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import BlogListView, BlogDetailView, ReviewCreateView, CommentCreateView, BlogCreateView, register, user_login, user_logout
+from .views import BlogListView, BlogDetailView, ReviewCreateView, CommentCreateView, BlogCreateView, BlogDeleteView, register, user_login, user_logout
 
 app_name = 'blogapp'
 
@@ -10,6 +10,7 @@ urlpatterns = [
     path('blog/<int:pk>/', BlogDetailView.as_view(), name='blog_detail'),
     path('blog/<int:pk>/review/', ReviewCreateView.as_view(), name='add_review'),
     path('blog/<int:blog_pk>/review/<int:review_pk>/comment/', CommentCreateView.as_view(), name='add_comment'),
+    path('blog/<int:pk>/delete/', BlogDeleteView.as_view(), name='delete_blog'),  #ELIMINAR BLOGS
     path('register/', register, name='register'),
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),

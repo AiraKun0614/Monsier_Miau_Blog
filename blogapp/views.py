@@ -1,11 +1,13 @@
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, DeleteView
 from django.urls import reverse_lazy
 from .models import Blog, Review, Comment
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
+from .forms import ReviewForm #REVIEW FORMS PARA VALIDACION
+from django.db.models import Avg #CONTEO 
 
 #vistas para el sistema de usuario
 
@@ -50,16 +52,20 @@ def user_logout(request):
     return redirect('blogapp:blog_list')  #redirecciona a la pagina principal
 
 
-
-
 class BlogListView(ListView):
     model = Blog
     template_name = 'blogapp/blog_list.html'
+    context_object_name = 'blogs'
+    paginate_by = 10 #PAGINACION DEL BLOG
+
+    def get_queryset(self):
+        return Blog.objects.annotate(av_rating=Avg('reviews__rating')).order_by('created_at')
 
 
 class BlogDetailView(DetailView):
     model = Blog
     template_name = 'blogapp/blog_detail.html'
+    context_object_name = 'blogs'
 
 
 class BlogCreateView(LoginRequiredMixin, CreateView):
@@ -76,16 +82,20 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
 
 # SE AÑADEN CAMBIOS PARA LA RESTRICCIÓN DE USUARIOS -- LoginRequiredMixin
 
-class ReviewCreateView(LoginRequiredMixin, CreateView):
+class ReviewCreateView(LoginRequiredMixin, CreateView): #CAMBIOS PARA VALIDACION DE REVIEWS
     model = Review
-    fields = ['rating', 'comment']
+    form_class = ReviewForm  # Usar el formulario personalizado
     template_name = 'blogapp/review_form.html'
 
     def form_valid(self, form):
         form.instance.reviewer = self.request.user
         form.instance.blog_id = self.kwargs['pk']
+        messages.success(self.request, '¡Reseña creada exitosamente!')
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        messages.error(self.request, 'Por favor corrige los errores en el formulario.')
+        return super().form_invalid(form)
     def get_success_url(self):
         return reverse_lazy('blogapp:blog_detail', kwargs={'pk': self.kwargs['pk']})
 
@@ -102,3 +112,18 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('blogapp:blog_detail', kwargs={'pk': self.kwargs['blog_pk']})
+    
+
+class BlogDeleteView (LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Blog
+    template_name = 'blogApp/blog_confirm_delete.html'
+    success_url = reverse_lazy('blogapp:blog_list')
+
+    def test_func(self):
+        blog = self.get_object()
+        return self.request.user == blog.author or self.request.user.is_superuser
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, '¡Blog eliminado exitosamente!')
+        return super().delete(request, *args, **kwargs)
+
