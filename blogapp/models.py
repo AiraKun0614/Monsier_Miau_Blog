@@ -5,17 +5,22 @@ from django.db.models import Avg #IMPORTA LIBRERÍA DE PROMEDIO
 from ckeditor_uploader.fields import RichTextUploadingField #Importa la libreria STEP 3
 # MODELOS
 
+
 class Category(models.Model): #DELIMITANDO LA SECCION DE CATEGORIAS
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
- 
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
+
 class Blog(models.Model):
     title = models.CharField(max_length=200)
     content = RichTextUploadingField() #RickTextFiel de CKeditor STEP 3
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='blogs')
     
 
     def __str__(self):

@@ -1,6 +1,6 @@
 from django.views.generic import ListView, DetailView, CreateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Blog, Review, Comment
+from .models import Blog, Review, Comment, Category
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
@@ -56,10 +56,20 @@ class BlogListView(ListView):
     model = Blog
     template_name = 'blogapp/blog_list.html'
     context_object_name = 'blogs'
-    paginate_by = 10 #PAGINACION DEL BLOG
+    paginate_by = 5 #PAGINACION
 
-    def get_queryset(self):
-        return Blog.objects.annotate(av_rating=Avg('reviews__rating')).order_by('created_at')
+    def get_queryset(self): #editado para las categorias
+        queryset = Blog.objects.annotate(avg_rating=Avg('reviews__rating')).order_by('-created_at')
+        category_id = self.request.GET.get('category')
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        context['selected_category'] = self.request.GET.get('category')
+        return context
 
 
 class BlogDetailView(DetailView):
@@ -70,7 +80,7 @@ class BlogDetailView(DetailView):
 
 class BlogCreateView(LoginRequiredMixin, CreateView):
     model = Blog
-    fields = ['title', 'content']
+    fields = ['title', 'content', 'category'] #Se agrega el dato "category"
     template_name = 'blogapp/blog_form.html'
 
     def form_valid(self, form):
