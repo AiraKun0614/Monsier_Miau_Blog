@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'blogapp',
     'widget_tweaks',
+    'ckeditor', # texto enriquecido
+    'ckeditor_uploader' # texto enriquecido
 ]
 
 MIDDLEWARE = [
@@ -125,3 +127,28 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'blogapp:login'
+
+#carga de imagenes (temporal)
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+#configuracion CKEDITOR
+
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Bold', 'Italic', 'Underline'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
+            ['Link', 'Unlink'],
+            ['Image', 'Table', 'HorizontalRule'],
+            ['Format', 'FontSize'],
+            ['RemoveFormat', 'Source'],
+        ],
+        'width': 'auto',
+        'height': '300px',
+    },
+}
