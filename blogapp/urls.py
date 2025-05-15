@@ -1,8 +1,7 @@
 from django.urls import path
-from .views import BlogListView, BlogDetailView, ReviewCreateView, CommentCreateView, BlogCreateView, register, user_login, user_logout
+from .views import BlogListView, BlogDetailView, ReviewCreateView, CommentCreateView, BlogCreateView, register, user_login, user_logout, tinymce_upload
 
 app_name = 'blogapp'
-
 
 urlpatterns = [
     path('', BlogListView.as_view(), name='blog_list'),
@@ -13,6 +12,5 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),
-
-   
+    path('tinymce/upload/', tinymce_upload, name='tinymce_upload'),
 ]

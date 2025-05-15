@@ -1,19 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
-#from ckeditor.fields import RichTextField #Importa la libreria STEP 3
-from ckeditor_uploader.fields import RichTextUploadingField #Importa la libreria STEP 3
-# MODELOS
+from tinymce.models import HTMLField
 
+# MODELOS
 class Blog(models.Model):
     title = models.CharField(max_length=200)
-    content = RichTextUploadingField() #RickTextFiel de CKeditor STEP 3
+    content = HTMLField()  # Cambiado a HTMLField para TinyMCE
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
-
 
 class Review(models.Model):
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='reviews')
@@ -24,8 +22,6 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.reviewer.username} - {self.blog.title}"
-
-
 
 class Comment(models.Model):
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='comments')

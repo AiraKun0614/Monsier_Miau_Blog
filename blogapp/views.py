@@ -6,16 +6,34 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
+from django.http import JsonResponse
+from django.conf import settings
+import os
 
-#vistas para el sistema de usuario
+# Vista para manejar la carga de imágenes de TinyMCE
+def tinymce_upload(request):
+    if request.method == 'POST' and request.FILES.get('file'):
+        uploaded_file = request.FILES['file']
+        # Guardar la imagen en MEDIA_ROOT/uploads/
+        upload_path = os.path.join(settings.MEDIA_ROOT, 'uploads')
+        os.makedirs(upload_path, exist_ok=True)
+        file_path = os.path.join(upload_path, uploaded_file.name)
+        with open(file_path, 'wb+') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
+        # Devolver la URL de la imagen
+        file_url = f"{settings.MEDIA_URL}uploads/{uploaded_file.name}"
+        return JsonResponse({'location': file_url})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
+# Vistas para el sistema de usuario
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save() #para crear el usuario 
-            login(request, user) #para registro automatico
-            messages.success(request, f' Bienvenido, {user.username}! Tu cuenta ha sido creada.')
+            user = form.save()
+            login(request, user)
+            messages.success(request, f'Bienvenido, {user.username}! Tu cuenta ha sido creada.')
             return redirect('blogapp:blog_list')
         else:
             messages.error(request, 'Error al crear el usuario, por favor corrige los errores')
@@ -23,7 +41,6 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'blogapp/register.html', {'form': form})
 
-#vista para el inicio de sesion
 def user_login(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -33,7 +50,7 @@ def user_login(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f' Bienvenido, {user.username}!')
+                messages.success(request, f'Bienvenido, {user.username}!')
                 return redirect('blogapp:blog_list')
             else:
                 messages.error(request, 'Credenciales incorrectas')
@@ -43,24 +60,18 @@ def user_login(request):
         form = AuthenticationForm()
     return render(request, 'blogapp/login.html', {'form': form})
 
-#vista para el cierre de sesion
 def user_logout(request):
     logout(request)
     messages.success(request, 'Has cerrado sesión correctamente')
-    return redirect('blogapp:blog_list')  #redirecciona a la pagina principal
-
-
-
+    return redirect('blogapp:blog_list')
 
 class BlogListView(ListView):
     model = Blog
     template_name = 'blogapp/blog_list.html'
 
-
 class BlogDetailView(DetailView):
     model = Blog
     template_name = 'blogapp/blog_detail.html'
-
 
 class BlogCreateView(LoginRequiredMixin, CreateView):
     model = Blog
@@ -74,8 +85,6 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('blogapp:blog_detail', kwargs={'pk': self.object.pk})
 
-# SE AÑADEN CAMBIOS PARA LA RESTRICCIÓN DE USUARIOS -- LoginRequiredMixin
-
 class ReviewCreateView(LoginRequiredMixin, CreateView):
     model = Review
     fields = ['rating', 'comment']
@@ -88,7 +97,6 @@ class ReviewCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('blogapp:blog_detail', kwargs={'pk': self.kwargs['pk']})
-
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment

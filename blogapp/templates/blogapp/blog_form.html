@@ -1,17 +1,18 @@
-{% extends 'base.html' %} <!-- ACTUALIZADO PARA EL CKEditor -->
+{% extends 'base.html' %}
+{% load widget_tweaks %}
 {% block content %}
   <section class="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg max-w-2xl mx-auto mt-8 transition-all duration-700 ease-in-out animate-fade-in">
     <h2 class="text-2xl font-semibold mb-4 dark:text-white text-gray-900">Create a New Blog</h2>
     <form method="post" class="space-y-4">
       {% csrf_token %}
-      {{ form.media }}  <!-- Añadido para cargar los JS de CKEditor -->
+      {{ form.media }}
       <div>
         <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
-        {{ form.title }}
+        {{ form.title|add_class:"bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 rounded-lg w-full border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" }}
       </div>
       <div>
         <label for="{{ form.content.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Content</label>
-        {{ form.content }}
+        {{ form.content|add_class:"w-full" }}
       </div>
       <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors">Save</button>
     </form>
