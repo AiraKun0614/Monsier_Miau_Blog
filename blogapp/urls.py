@@ -1,8 +1,8 @@
 from django.urls import path
 from .views import BlogListView, BlogDetailView, ReviewCreateView, CommentCreateView, BlogCreateView, register, user_login, user_logout
+from . import views
 
 app_name = 'blogapp'
-
 
 urlpatterns = [
     path('', BlogListView.as_view(), name='blog_list'),
@@ -13,6 +13,6 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),
-
-   
+    path('blog/add/', views.BlogCreateView.as_view(), name='blog_add'),
+    path('ajax/load-subcategories/', views.load_subcategories, name='ajax_load_subcategories'),
 ]

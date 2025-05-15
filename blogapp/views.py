@@ -1,11 +1,20 @@
 from django.views.generic import ListView, DetailView, CreateView
 from django.urls import reverse_lazy
-from .models import Blog, Review, Comment
+from .models import Blog, Review, Comment, Category, Subcategory
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
+from .forms import BlogForm
+
+from django.http import JsonResponse
+from .models import Subcategory
+
+def load_subcategories(request):
+    category_id = request.GET.get('category')
+    subcategories = Subcategory.objects.filter(category_id=category_id).values('id', 'name')
+    return JsonResponse(list(subcategories), safe=False)
 
 #vistas para el sistema de usuario
 
@@ -49,13 +58,29 @@ def user_logout(request):
     messages.success(request, 'Has cerrado sesión correctamente')
     return redirect('blogapp:blog_list')  #redirecciona a la pagina principal
 
-
-
-
 class BlogListView(ListView):
     model = Blog
     template_name = 'blogapp/blog_list.html'
+    context_object_name = 'blogs'
 
+    def get_queryset(self):
+        queryset = Blog.objects.all().order_by('-created_at')
+        subcat = self.request.GET.get('subcategory')
+        cat = self.request.GET.get('category')
+
+        if subcat:
+            queryset = queryset.filter(subcategory__id=subcat)
+        elif cat:
+            queryset = queryset.filter(subcategory__category__id=cat)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.prefetch_related('subcategories').all()
+        context['selected_category'] = self.request.GET.get('category')
+        context['selected_subcategory'] = self.request.GET.get('subcategory')
+        return context
 
 class BlogDetailView(DetailView):
     model = Blog
@@ -64,7 +89,7 @@ class BlogDetailView(DetailView):
 
 class BlogCreateView(LoginRequiredMixin, CreateView):
     model = Blog
-    fields = ['title', 'content']
+    form_class = BlogForm
     template_name = 'blogapp/blog_form.html'
 
     def form_valid(self, form):
@@ -73,6 +98,7 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('blogapp:blog_detail', kwargs={'pk': self.object.pk})
+
 
 # SE AÑADEN CAMBIOS PARA LA RESTRICCIÓN DE USUARIOS -- LoginRequiredMixin
 

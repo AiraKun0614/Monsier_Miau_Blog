@@ -142,13 +142,16 @@ CKEDITOR_CONFIGS = {
         'toolbar': 'Custom',
         'toolbar_Custom': [
             ['Bold', 'Italic', 'Underline'],
-            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
+            ['NumberedList', 'BulletedList'],
             ['Link', 'Unlink'],
-            ['Image', 'Table', 'HorizontalRule'],
-            ['Format', 'FontSize'],
-            ['RemoveFormat', 'Source'],
+            ['Image', 'Table'],
+            ['RemoveFormat', 'Source']
         ],
-        'width': 'auto',
-        'height': '300px',
-    },
+        'extraPlugins': ','.join(['uploadimage', 'image2']),
+        'removeDialogTabs': 'image:advanced;image:Link',
+        'uploadUrl': '/ckeditor/upload/',
+        'filebrowserUploadUrl': '/ckeditor/upload/',
+        'filebrowserBrowseUrl': '/ckeditor/browse/',
+        'imageUploadUrl': '/ckeditor/upload/',
+    }
 }

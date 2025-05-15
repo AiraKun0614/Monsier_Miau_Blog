@@ -1,10 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
   <article class="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg transition-all duration-700 ease-in-out dark:text-white text-gray-900 animate-fade-in">
-    <h1 class="text-3xl font-bold mb-2">{{ object.title }}</h1>
-    <div class="text-gray-700 dark:text-gray-300 mb-4">{{ object.content|safe }}</div>  <!-- Añadido |safe -->
-    <p class="text-sm text-gray-600 dark:text-gray-500">By {{ object.author.username }} - {{ object.created_at }}</p>
-  </article>
+  
+  {% if object.image %}
+    <img src="{{ object.image.url }}" alt="Blog image"
+         class="w-full max-h-[500px] object-contain mb-4 rounded-lg shadow-md">
+  {% endif %}
+
+  <h1 class="text-3xl font-bold mb-2">{{ object.title }}</h1>
+  <div class="text-gray-700 dark:text-gray-300 mb-4">{{ object.content|safe }}</div>
+  <p class="text-sm text-gray-600 dark:text-gray-500">By {{ object.author.username }} - {{ object.created_at }}</p>
+</article>
+
 
   <section class="mt-8">
     <h2 class="text-2xl font-semibold mb-4">Reviews</h2>

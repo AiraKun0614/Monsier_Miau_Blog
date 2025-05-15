@@ -18,10 +18,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from ckeditor_uploader import views as ckeditor_views
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('blogapp.urls')),
+
+    # CKEditor: permitir subida de imágenes para usuarios logueados
+    path('ckeditor/upload/', login_required(ckeditor_views.upload), name='ckeditor_upload'),
+    path('ckeditor/browse/', login_required(ckeditor_views.browse), name='ckeditor_browse'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
 ]
 

@@ -1,16 +1,88 @@
 {% extends 'base.html' %}
 {% block content %}
-  <h1 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white">All Blogs</h1>
-  <div class="grid gap-6">
-    {% for blog in object_list %}
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-700 ease-in-out dark:text-white text-gray-900 animate-fade-in">
-        <h2 class="text-xl font-semibold mb-2">
-          <a href="{% url 'blogapp:blog_detail' blog.pk %}" class="text-blue-400 hover:text-blue-300">{{ blog.title }}</a>
-        </h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">by {{ blog.author.username }} - {{ blog.created_at }}</p>
-      </div>
-    {% empty %}
-      <p class="text-gray-500 dark:text-gray-400 text-center">No blogs have been posted yet.</p>
-    {% endfor %}
+
+<h1 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white">All Blogs</h1>
+
+<!-- Formulario de filtros -->
+<form method="get" class="mb-6 text-center" id="filter-form">
+  <div class="inline-flex gap-4 flex-wrap justify-center">
+    <!-- CATEGORÍA -->
+    <div class="flex flex-col items-start">
+      <label class="text-white mb-1">Categoría:</label>
+      <select name="category" id="category-select" class="rounded p-2">
+        <option value="">-- Todas --</option>
+        {% for cat in categories %}
+          <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+            {{ cat.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- SUBCATEGORÍA -->
+    <div class="flex flex-col items-start">
+      <label class="text-white mb-1">Subcategoría:</label>
+      <select name="subcategory" id="subcategory-select" class="rounded p-2">
+        <option value="">-- Todas --</option>
+        {% for cat in categories %}
+          {% for sub in cat.subcategories.all %}
+            <option value="{{ sub.id }}"
+                    data-category="{{ cat.id }}"
+                    class="sub-option"
+                    {% if selected_subcategory == sub.id|stringformat:"s" %}selected{% endif %}>
+              {{ sub.name }}
+            </option>
+          {% endfor %}
+        {% endfor %}
+      </select>
+    </div>
   </div>
+</form>
+
+<!-- Lista de blogs -->
+<div class="grid gap-6 mt-6">
+  {% for blog in blogs %}
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-700 ease-in-out dark:text-white text-gray-900 animate-fade-in">
+      <h2 class="text-xl font-semibold mb-1">
+        <a href="{% url 'blogapp:blog_detail' blog.pk %}" class="text-blue-400 hover:text-blue-300">{{ blog.title }}</a>
+      </h2>
+      {% if blog.subcategory %}
+        <p class="text-sm text-purple-600 dark:text-purple-300 mb-1">
+          Categoría: {{ blog.subcategory.category.name }} → {{ blog.subcategory.name }}
+        </p>
+      {% endif %}
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        by {{ blog.author.username }} - {{ blog.created_at }}
+      </p>
+    </div>
+  {% empty %}
+    <p class="text-gray-500 dark:text-gray-400 text-center">No blogs have been posted yet.</p>
+  {% endfor %}
+</div>
+
+<!-- JS para filtrar subcategorías dinámicamente -->
+<script>
+  const categorySelect = document.getElementById('category-select');
+  const subcategorySelect = document.getElementById('subcategory-select');
+
+  function filterSubcategories() {
+    const selectedCategory = categorySelect.value;
+    const options = subcategorySelect.querySelectorAll('.sub-option');
+
+    options.forEach(option => {
+      const cat = option.getAttribute('data-category');
+      option.style.display = (selectedCategory === "" || cat === selectedCategory) ? "block" : "none";
+    });
+  }
+
+  // Inicializa y vuelve a aplicar filtro si ya había una categoría seleccionada
+  document.addEventListener('DOMContentLoaded', () => {
+    filterSubcategories();
+  });
+
+  categorySelect.addEventListener('change', () => {
+    document.getElementById('filter-form').submit(); // envía el formulario
+  });
+</script>
+
 {% endblock %}
