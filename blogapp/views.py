@@ -7,7 +7,17 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from .forms import ReviewForm #REVIEW FORMS PARA VALIDACION
-from django.db.models import Avg #CONTEO 
+from django.db.models import Avg #CONTEO
+#PARA TINYMCE
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+import os
+import uuid
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+
 
 #vistas para el sistema de usuario
 
@@ -137,3 +147,30 @@ class BlogDeleteView (LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         messages.success(request, '¡Blog eliminado exitosamente!')
         return super().delete(request, *args, **kwargs)
 
+@csrf_exempt
+@login_required
+def tinymce_upload(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
+    
+    if 'file' not in request.FILES:
+        return JsonResponse({'error': 'No se proporcionó ninguna imagen'}, status=400)
+    
+    uploaded_file = request.FILES['file']
+    # Validar tipo de archivo
+    allowed_types = ['image/jpeg', 'image/png', 'image/gif']
+    if uploaded_file.content_type not in allowed_types:
+        return JsonResponse({'error': 'Solo se permiten imágenes (JPEG, PNG, GIF)'}, status=400)
+    
+    # Generar nombre único
+    ext = uploaded_file.name.split('.')[-1]
+    filename = f"{uuid.uuid4()}.{ext}"
+    file_path = os.path.join('tinymce', filename)
+    
+    # Guardar archivo
+    try:
+        path = default_storage.save(file_path, ContentFile(uploaded_file.read()))
+        file_url = f"{settings.MEDIA_URL}{path}"
+        return JsonResponse({'location': file_url})
+    except Exception as e:
+        return JsonResponse({'error': f'Error al guardar la imagen: {str(e)}'}, status=500)

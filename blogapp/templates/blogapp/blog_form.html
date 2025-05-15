@@ -25,4 +25,5 @@
       <a href="{% url 'blogapp:blog_list' %}" class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded transition-all duration-300 animate-fade-in">Cancel</a>
     </div>
   </form>
+  {{ form.media }}  <!-- Añadir esto al final del bloque content -->
 {% endblock %}

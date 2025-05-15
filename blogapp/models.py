@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Avg #IMPORTA LIBRERÍA DE PROMEDIO
-from ckeditor_uploader.fields import RichTextUploadingField #Importa la libreria STEP 3
+from tinymce.models import HTMLField as TinymceField #TINYMCE
 # MODELOS
 
 
@@ -17,7 +17,7 @@ class Category(models.Model): #DELIMITANDO LA SECCION DE CATEGORIAS
 
 class Blog(models.Model):
     title = models.CharField(max_length=200)
-    content = RichTextUploadingField() #RickTextFiel de CKeditor STEP 3
+    content = TinymceField() #RickTextFiel de TINY MCE STEP 3
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='blogs')

@@ -39,8 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'blogapp',
     'widget_tweaks',
-    'ckeditor', # texto enriquecido
-    'ckeditor_uploader' # texto enriquecido
+    'tinymce',
 ]
 
 MIDDLEWARE = [
@@ -133,22 +132,42 @@ LOGIN_URL = 'blogapp:login'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-#configuracion CKEDITOR
 
-CKEDITOR_UPLOAD_PATH = 'uploads/'
-
-CKEDITOR_CONFIGS = {
-    'default': {
-        'toolbar': 'Custom',
-        'toolbar_Custom': [
-            ['Bold', 'Italic', 'Underline'],
-            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'],
-            ['Link', 'Unlink'],
-            ['Image', 'Table', 'HorizontalRule'],
-            ['Format', 'FontSize'],
-            ['RemoveFormat', 'Source'],
-        ],
-        'width': 'auto',
-        'height': '300px',
-    },
+TINYMCE_DEFAULT_CONFIG = {
+    'height': 500,
+    'width': '100%',
+    'menubar': 'file edit view insert format tools table help',
+    'plugins': [
+        'advlist autolink lists link image charmap print preview anchor',
+        'searchreplace visualblocks code fullscreen',
+        'insertdatetime media table paste code help wordcount',
+        'textcolor colorpicker textpattern emoticons template'
+    ],
+    'toolbar': (
+        'undo redo | formatselect fontselect fontsizeselect | '
+        'bold italic underline strikethrough | forecolor backcolor | '
+        'alignleft aligncenter alignright alignjustify | '
+        'bullist numlist outdent indent | link image media | '
+        'blockquote hr table | emoticons charmap | '
+        'removeformat | preview fullscreen | code | help'
+    ),
+    'image_advtab': True,
+    'file_picker_types': 'image media',
+    'automatic_uploads': True,
+    'images_upload_url': '/tinymce/upload/',
+    'content_style': 'body { font-family: Arial, sans-serif; font-size: 16px }',
+    'font_formats': (
+        'Arial=arial,helvetica,sans-serif;'
+        'Courier New=courier new,courier,monospace;'
+        'Georgia=georgia,palatino;'
+        'Times New Roman=times new roman,times,serif;'
+        'Verdana=verdana,geneva'
+        'Playful=playful'
+    ),
+    'fontsize_formats': '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
+    'templates': [
+        {'title': 'Blog Intro', 'content': '<h2>Bienvenidos a Monsier Miau</h2><p>¡Explora el mundo felino!</p>'},
+        {'title': 'Cita Gatuna', 'content': '<blockquote>Los gatos son poesía en movimiento.</blockquote>'}
+    ],
+    'emoticons_database': 'emojis'
 }
