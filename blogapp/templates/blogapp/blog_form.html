@@ -1,29 +1,20 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 {% block content %}
-  <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Create a New Blog</h1>
-  <form method="post" class="space-y-6">
-    {% csrf_token %}
-    <div>
-      <label for="id_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
-      <input type="text" name="title" id="id_title" class="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500 transition-all duration-300" required>
+  <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white font-playful">Create a New Blog 🐾</h1>
+  <form method="post" class="space-y-4 transition-all duration-700 ease-in-out animate-fade-in">{% csrf_token %}
+    <div class="space-y-2 transition-all duration-700 ease-in-out">
+      {% for field in form %}
+        <div>
+          <label for="{{ field.id_for_label }}" class="block text-sm font-medium mb-1 text-gray-900 dark:text-white font-playful">{{ field.label }}</label>
+          {{ field|add_class:"bg-cat-purple dark:bg-soft-purple text-gray-900 dark:text-white px-4 py-2 rounded-lg w-full border border-cat-pink dark:border-cat-pink focus:outline-none focus:ring-2 focus:ring-cat-blue" }}
+          {% if field.errors %}
+            <p class="text-red-500 text-sm font-playful">{{ field.errors|striptags }}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
     </div>
-    <div>
-      <label for="id_category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-      <select name="category" id="id_category" class="mt-1 block w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500 transition-all duration-300" required>
-        <option value="" disabled selected>Select a category</option>
-        {% for category in form.category.field.queryset %}
-          <option value="{{ category.pk }}">{{ category.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div>
-      <label for="id_content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Content</label>
-      {{ form.content }}
-    </div>
-    <div class="flex space-x-4">
-      <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-all duration-300 animate-fade-in">Create Blog</button>
-      <a href="{% url 'blogapp:blog_list' %}" class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded transition-all duration-300 animate-fade-in">Cancel</a>
-    </div>
+    <button type="submit" class="px-6 py-2 bg-cat-blue hover:bg-blue-400 text-white dark:bg-cat-blue dark:hover:bg-blue-400 rounded transition-all duration-500 ease-in-out font-playful">Post Blog 🐾</button>
   </form>
-  {{ form.media }}  <!-- Añadir esto al final del bloque content -->
+  {{ form.media }}  <!-- Asegura que TinyMCE se cargue -->
 {% endblock %}

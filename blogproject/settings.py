@@ -118,8 +118,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
-
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -155,19 +155,19 @@ TINYMCE_DEFAULT_CONFIG = {
     'file_picker_types': 'image media',
     'automatic_uploads': True,
     'images_upload_url': '/tinymce/upload/',
-    'content_style': 'body { font-family: Arial, sans-serif; font-size: 16px }',
+    'content_style': 'body { font-family: "Playful", Arial, sans-serif; font-size: 16px }',
     'font_formats': (
         'Arial=arial,helvetica,sans-serif;'
         'Courier New=courier new,courier,monospace;'
         'Georgia=georgia,palatino;'
         'Times New Roman=times new roman,times,serif;'
-        'Verdana=verdana,geneva'
-        'Playful=playful'
+        'Verdana=verdana,geneva;'
+        'Playful=Playful'
     ),
     'fontsize_formats': '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
     'templates': [
-        {'title': 'Blog Intro', 'content': '<h2>Bienvenidos a Monsier Miau</h2><p>¡Explora el mundo felino!</p>'},
-        {'title': 'Cita Gatuna', 'content': '<blockquote>Los gatos son poesía en movimiento.</blockquote>'}
+        {'title': 'Blog Intro', 'content': '<h2>Bienvenidos a Monsier Miau 🐾</h2><p>¡Explora el mundo felino!</p>'},
+        {'title': 'Cita Gatuna', 'content': '<blockquote>Los gatos son poesía en movimiento. 🐾</blockquote>'}
     ],
     'emoticons_database': 'emojis'
 }
