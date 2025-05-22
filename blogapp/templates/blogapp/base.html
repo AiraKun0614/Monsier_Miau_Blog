@@ -5,93 +5,134 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blog and Reviews</title> 
   <script src="https://cdn.tailwindcss.com"></script>
-  {% load static %}
-  <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
-  
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
-        extend: {}
+        extend: {
+          colors: {
+            'cat-purple': '#C71585',
+            'cat-pink': '#FFD1DC',
+            'cat-light-pink': '#FFE4E1',
+            'cat-dark-pink': '#FF69B4',
+            'cat-white': '#FFF5F5',
+            'cat-soft-purple': '#4B0082',
+          },
+          fontFamily: {
+            'playful': ['"Comic Sans MS"', 'cursive'],
+          },
+        }
       },
       plugins: []
     };
   </script>
   
   <style>
-    @font-face {
-      font-family: 'Playful';
-      src: url('{% static "fonts/playful.woff2" %}') format('woff2');
+    html {
+      background: linear-gradient(to bottom, #FFD1DC, #FFE4E1);
+      background-size: 100%;
     }
-    .font-playful {
-      font-family: 'Playful', sans-serif;
+    .dark html {
+      background: linear-gradient(to bottom, #4B0082, #2F0047);
+      background-size: 100%;
     }
-    .bg-cat-blue { background-color: #1e90ff; }
-    .bg-cat-purple { background-color: #e6e6fa; }
-    .bg-soft-purple { background-color: #4b0082; }
-    .text-cat-blue { color: #1e90ff; }
-    .text-cat-pink { color: #ff69b4; }
-    .border-cat-pink { border-color: #ff69b4; }
-    .focus\:ring-cat-blue:focus { --tw-ring-color: #1e90ff; }
-    .focus\:border-cat-blue:focus { border-color: #1e90ff; }
-    .hover\:bg-blue-400:hover { background-color: #63b3ed; }
-    .hover\:bg-green-600:hover { background-color: #34d399; }
-    .hover\:bg-purple-600:hover { background-color: #9333ea; }
-    body {
-      background-image: url('{% static "images/cat-pattern.png" %}');
-      background-size: 150px;
-      background-repeat: repeat;
-      background-attachment: fixed;
-      background-color: #f9f9f9;
+    html, body {
+      height: 100%;
+      scroll-behavior: smooth;
+      transition: background-color 0.5s ease-in-out;
     }
-    .bg-overlay {
-      background: rgba(255, 255, 255, 0.9);
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .dark .bg-overlay {
-      background: rgba(0, 0, 0, 0.8);
+    .animate-fade-in {
+      animation: fade-in 0.6s ease-out;
+      will-change: opacity, transform;
     }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.5);
+      transition: box-shadow 0.3s ease;
     }
-    .animate-bounce {
-      animation: bounce 1s ease infinite;
+    .paw-print::before {
+      content: '🐾';
+      margin-right: 0.5rem;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .paw-print::after {
+      content: '🐾';
+      margin-left: 0.5rem;
     }
-    .animate-spin {
-      animation: spin 4s linear infinite;
+    .cat-pastel-light {
+  background-color: #E6F0FA; /* Azul pastel claro */
+    }
+    .cat-pastel-dark {
+      background-color: #2C3E50; /* Azul pastel oscuro */
     }
   </style>
+
 </head>
-<body id="body" class="flex flex-col min-h-screen bg-white dark:bg-black text-gray-900 dark:text-gray-200 font-playful">
-  <!--ENCABEZADO -->
-  <nav class="bg-white dark:bg-gradient-to-r dark:from-gray-900 dark:to-gray-700 shadow-md py-4 px-6 transition-colors">
+<body id="body" class="flex flex-col min-h-screen bg-transparent text-gray-900 dark:text-white font-sans transition-all duration-700 ease-in-out">
+  <nav class="bg-cat-pink dark:bg-cat-soft-purple shadow-lg py-4 px-6 transition-colors duration-500">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
-      <a href="{% url 'blogapp:blog_list' %}" class="text-3xl md:text-4xl font-bold text-white flex items-center animate-bounce">
-        Monsier Miau 🐾</a>
-      <a class="ml-2 text-lg hidden md:block">El Diario Del Gato Ilustre</a>
-      <!--NAVEGACION -->   
-      <div class="flex items-center space-x-2 md:space-x-4">
-        <button onclick="toggleDarkMode()" class="px-3 py-2 md:px-4 md:py-2 bg-cat-purple dark:bg-gray-800 text-white rounded-lg hover:bg-blue-400 dark:hover:bg-blue-500 transition-all duration-300 flex items-center text-sm md:text-base">🌞</span>
+      <div class="flex items-center space-x-4">
+        <a href="{% url 'blogapp:blog_list' %}" class="text-gray-900 dark:text-white text-2xl font-playful tracking-wider hover:text-cat-dark-pink dark:hover:text-cat-light-pink transition-colors duration-300">Monsier Miau</a>
+      </div>
+      <div class="flex items-center space-x-4">
+        <button onclick="toggleDarkMode()" class="flex items-center gap-2 px-4 py-2 rounded-full bg-cat-light-pink dark:bg-cat-purple text-gray-900 dark:text-white hover:scale-105 hover:shadow-xl transition-all duration-300 shadow-lg">
+          <span id="theme-icon" class="transition-transform duration-500 transform">🌞</span>
           <span id="theme-label" class="transition-opacity duration-500 ease-in-out">Modo Claro</span>
         </button>
-        </button>
         {% if user.is_authenticated %}
-          <a href="{% url 'blogapp:add_blog' %}" class="px-3 py-2 md:px-4 md:py-2 bg-cat-blue text-white rounded-lg hover:bg-blue-400 transition-all duration-300 text-sm md:text-base">New Blog</a>
-          <a href="{% url 'blogapp:logout' %}" class="bg-cat-pink hover:bg-cat-pink text-white dark:bg-red-600 dark:hover:bg-red-700 dark:text-white font-medium py-2 px-4 rounded transition-all duration-500 ease-in-out">Log Out</a>
+          <a href="{% url 'blogapp:add_blog' %}" class="bg-cat-dark-pink hover:bg-cat-purple text-white dark:bg-cat-purple dark:hover:bg-cat-dark-pink dark:text-white font-medium py-2 px-4 rounded transition-all duration-500 ease-in-out">New Blog</a>
+          <a href="{% url 'blogapp:logout' %}" class="bg-cat-dark-pink hover:bg-cat-purple text-white dark:bg-cat-purple dark:hover:bg-cat-dark-pink dark:text-white font-medium py-2 px-4 rounded transition-all duration-500 ease-in-out">Log Out</a>
         {% else %}
-          <a href="{% url 'blogapp:login' %}" class="px-3 py-2 md:px-4 md:py-2 bg-cat-blue text-white rounded-lg hover:bg-blue-400 transition-all duration-300 text-sm md:text-base">Log In</a>
-          <a href="{% url 'blogapp:register' %}" class="bg-green-500 hover:bg-green-600 text-white dark:bg-green-600 dark:hover:bg-green-700 dark:text-white font-medium py-2 px-4 rounded transition-all duration-500 ease-in-out">Register</a>
+          <a href="{% url 'blogapp:login' %}" class="bg-cat-dark-pink hover:bg-cat-purple text-white dark:bg-cat-purple dark:hover:bg-cat-dark-pink dark:text-white font-medium py-2 px-4 rounded transition-all duration-500 ease-in-out">Log In</a>
+          <a href="{% url 'blogapp:register' %}" class="bg-cat-dark-pink hover:bg-cat-purple text-white dark:bg-cat-purple dark:hover:bg-cat-dark-pink dark:text-white font-medium py-2 px-4 rounded transition-all duration-500 ease-in-out">Register</a>
         {% endif %}
       </div>
     </div>
   </nav>
   <!---->
-  <main class="flex-grow w-full bg-white dark:bg-gray-900 transition-all duration-700 ease-in-out">
-    <div class="max-w-4xl mx-auto px-4 py-8">
+
+
+<main class="flex-grow w-full bg-transparent transition-all duration-700 ease-in-out">
+  <section class="bg-cat-purple dark:bg-cat-soft-purple text-white py-16 px-6">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
+      <div class="md:w-1/2 text-center md:text-left">
+        <h1 class="text-4xl md:text-5xl font-playful mb-4 text-white dark:text-white">Bienvenidos al Blog de Monsier Miau</h1>
+        <p class="text-lg mb-6 text-white dark:text-white">Un espacio para amantes de los gatos, donde compartimos historias, consejos y mucho más.</p>
+        <a href="{% url 'blogapp:blog_list' %}" class="inline-block bg-cat-light-pink dark:bg-cat-pink text-gray-900 dark:text-gray-900 font-medium py-3 px-6 rounded-full hover:bg-cat-pink dark:hover:bg-cat-light-pink transition-all duration-300">Explorar Blogs</a>
+      </div>
+      <div class="md:w-1/2 mt-8 md:mt-0">
+        <img src="https://images.unsplash.com/photo-1739646723858-108bde0c48d2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3MjMzMTB8MHwxfHNlYXJjaHwyfHxjYXQlMjBlYXRpbmclMjBncmFzc3xlbnwwfHx8fDE3NDQ4NzY3MTB8MA&ixlib=rb-4.0.3&q=80&w=1080" alt="Cute Cat" class="w-full h-64 object-cover rounded-lg">
+      </div>
+    </div>
+  </section>
+
+    <section class="py-12 px-6">
+      <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+        <div class="p-6 bg-cat-white dark:bg-cat-soft-purple rounded-lg shadow-lg">
+          <h3 class="text-xl font-playful text-cat-purple dark:text-white mb-2 paw-print">Publicar Blogs</h3>
+          <p class="text-gray-700 dark:text-white">Comparte tus historias y experiencias con otros amantes de los gatos.</p>
+        </div>
+        <div class="p-6 bg-cat-white dark:bg-cat-soft-purple rounded-lg shadow-lg">
+          <h3 class="text-xl font-playful text-cat-purple dark:text-white mb-2 paw-print">Socialización</h3>
+          <p class="text-gray-700 dark:text-white">Conecta con otros dueños de gatos y haz amigos.</p>
+        </div>
+        <div class="p-6 bg-cat-white dark:bg-cat-soft-purple rounded-lg shadow-lg">
+          <h3 class="text-xl font-playful text-cat-purple dark:text-white mb-2 paw-print">Consejos</h3>
+          <p class="text-gray-700 dark:text-white">Aprende cómo cuidar mejor a tu gato con nuestros consejos.</p>
+        </div>
+        <div class="p-6 bg-cat-white dark:bg-cat-soft-purple rounded-lg shadow-lg">
+          <h3 class="text-xl font-playful text-cat-purple dark:text-white mb-2 paw-print">Salud</h3>
+          <p class="text-gray-700 dark:text-white">Mantén a tu gato sano con nuestras guías de salud.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="max-w-4xl mx-auto px-6 py-10 shadow-lg rounded-lg bg-cat-white dark:bg-cat-soft-purple mt-6 mb-6">
+
+
       {% if messages %}
           <div class="mb-6">
               {% for message in messages %}
@@ -104,6 +145,12 @@
       {% block content %}{% endblock %}
     </div>
   </main>
+
+    <footer class="bg-cat-pink dark:bg-cat-soft-purple shadow-inner py-4 px-6 transition-colors duration-500">
+    <div class="max-w-6xl mx-auto text-center">
+      <p class="text-gray-600 dark:text-white text-sm font-playful">© 2025 Monsier Miau - El Diario Del Gato Ilustre 🐾 Meow Meow 🐾</p>
+    </div>
+  </footer>
 
   <script>
     // Persist dark mode setting

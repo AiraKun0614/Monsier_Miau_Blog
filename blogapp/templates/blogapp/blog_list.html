@@ -1,16 +1,72 @@
 {% extends 'base.html' %}
 {% block content %}
-  <h1 class="text-3xl font-bold mb-6 text-center text-gray-900 dark:text-white font-playful animate-fade-in">All Blogs 🐾</h1>
-  <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-    {% for blog in object_list %}
-      <div class="bg-gradient-to-r from-cat-purple to-cat-blue dark:from-soft-purple dark:to-indigo-800 rounded-lg shadow-lg p-6 hover:shadow-xl transition-all duration-700 ease-in-out animate-fade-in animate-bounce">
-        <h2 class="text-xl font-semibold mb-2">
-          <a href="{% url 'blogapp:blog_detail' blog.pk %}" class="text-cat-blue hover:text-blue-300 font-playful">{{ blog.title }}</a>
-        </h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400 font-playful">by {{ blog.author.username }} - {{ blog.created_at }}</p>
-      </div>
-    {% empty %}
-      <p class="text-gray-500 dark:text-gray-400 text-center font-playful animate-fade-in">No blogs have been posted yet. 😿</p>
-    {% endfor %}
-  </div>
+
+<h1 class="text-3xl font-bold mb-6 text-center text-cat-purple dark:text-white">All Blogs 🐾</h1>
+
+<!-- Filtro de categorías -->
+<div class="mb-6 flex flex-wrap gap-2 justify-center">
+  <a href="{% url 'blogapp:blog_list' %}" class="px-4 py-2 rounded-md {% if not selected_category %}bg-cat-purple text-white dark:bg-cat-soft-purple{% else %}bg-cat-white text-cat-purple dark:bg-cat-soft-purple dark:text-white{% endif %} hover:bg-cat-purple hover:text-white dark:hover:bg-cat-purple dark:hover:text-white transition-all duration-300">All</a>
+  {% for category in categories %}
+    <a href="?category={{ category.pk }}" class="px-4 py-2 rounded-md {% if selected_category == category.pk|stringformat:'s' %}bg-cat-purple text-white dark:bg-cat-soft-purple{% else %}bg-cat-white text-cat-purple dark:bg-cat-soft-purple dark:text-white{% endif %} hover:bg-cat-purple hover:text-white dark:hover:bg-cat-purple dark:hover:text-white transition-all duration-300">{{ category.name }}</a>
+  {% endfor %}
+</div>
+
+<!-- Lista de blogs en grilla -->
+<div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+  {% for blog in object_list %}
+    <div class="bg-cat-white dark:bg-cat-soft-purple rounded-lg shadow-lg p-6 transition-all duration-700 ease-in-out animate-fade-in">
+      <h2 class="text-xl font-semibold mb-2">
+          <a href="{% url 'blogapp:blog_detail' blog.pk %}" class="hover:text-white text-cat-purple dark:text-white">{{ blog.title }}</a>
+      </h2>
+      <p class="text-cat-soft-purple dark:text-white mb-2">Category: {{ blog.category.name }}</p>
+      {% if blog.avg_rating %}
+        <p class="text-yellow-500 dark:text-yellow-400 mb-2">Promedio: {{ blog.avg_rating|floatformat:1 }}/5 ⭐ ({{ blog.reviews.count }} reseñas)</p>
+      {% else %}
+        <p class="text-cat-soft-purple dark:text-white mb-2">No ratings yet</p>
+      {% endif %}
+      <p class="text-sm text-cat-soft-purple dark:text-white">By {{ blog.author.username }} - {{ blog.created_at }}</p>
+    </div>
+  {% empty %}
+    <p class="text-center text-cat-soft-purple dark:text-white font-playful animate-fade-in">No blogs have been posted yet. 😿</p>
+  {% endfor %}
+</div>
+
+{% if is_paginated %}
+  <nav class="mt-8 flex justify-center">
+    <ul class="flex space-x-2 font-playful">
+      {% if page_obj.has_previous %}
+        <li>
+          <a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="px-4 py-2 bg-gradient-to-b from-cat-purple to-cat-soft-purple dark:from-cat-soft-purple dark:to-purple-900 text-white rounded hover:bg-cat-purple hover:scale-105 dark:hover:bg-cat-purple transition-all duration-300">🐾 Anterior</a>
+        </li>
+      {% else %}
+        <li>
+          <span class="px-4 py-2 bg-cat-white dark:bg-cat-soft-purple text-cat-soft-purple dark:text-white rounded opacity-50 cursor-not-allowed">🐾 Anterior</span>
+        </li>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}
+          <li>
+            <span class="px-4 py-2 bg-cat-purple text-white dark:bg-cat-soft-purple rounded font-bold">{{ num }}</span>
+          </li>
+        {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+          <li>
+            <a href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="px-4 py-2 bg-gradient-to-b from-cat-white to-cat-soft-purple dark:from-cat-soft-purple dark:to-purple-900 text-cat-purple dark:text-white rounded hover:bg-cat-purple hover:text-white hover:scale-105 dark:hover:bg-cat-purple dark:hover:text-white transition-all duration-300">{{ num }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+        <li>
+          <a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="px-4 py-2 bg-gradient-to-b from-cat-purple to-cat-soft-purple dark:from-cat-soft-purple dark:to-purple-900 text-white rounded hover:bg-cat-purple hover:scale-105 dark:hover:bg-cat-purple transition-all duration-300">Siguiente 🐾</a>
+        </li>
+      {% else %}
+        <li>
+          <span class="px-4 py-2 bg-cat-white dark:bg-cat-soft-purple text-cat-soft-purple dark:text-white rounded opacity-50 cursor-not-allowed">Siguiente 🐾</span>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}
+
 {% endblock %}
