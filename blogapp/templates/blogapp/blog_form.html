@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% block content %}
-  <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white font-playful">Create a New Blog 🐾</h1>
+  <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white font-playful">Crear nuevo blog 🐾</h1>
   <form method="post" class="space-y-4 transition-all duration-700 ease-in-out animate-fade-in">{% csrf_token %}
     <div class="space-y-2 transition-all duration-700 ease-in-out">
       {% for field in form %}
