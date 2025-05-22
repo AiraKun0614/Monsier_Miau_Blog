@@ -15,6 +15,10 @@
 <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
   {% for blog in object_list %}
     <div class="bg-cat-white dark:bg-cat-soft-purple rounded-lg shadow-lg p-6 transition-all duration-700 ease-in-out animate-fade-in">
+      {% if blog.image %}
+  <img src="{{ blog.image.url }}" alt="Vista previa de {{ blog.title }}" class="mb-4 w-full h-48 object-cover rounded-md shadow">
+{% endif %}
+
       <h2 class="text-xl font-semibold mb-2">
           <a href="{% url 'blogapp:blog_detail' blog.pk %}" class="hover:text-white text-cat-purple dark:text-white">{{ blog.title }}</a>
       </h2>
