@@ -18,6 +18,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+from .models import Message
 
 # Vistas para el sistema de usuario
 def register(request):
