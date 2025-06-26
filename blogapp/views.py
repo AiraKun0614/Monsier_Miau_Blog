@@ -178,10 +178,11 @@ def inbox(request):
         'unread_messages_count': unread_count
     })
 
+# send_message
 @login_required
 def send_message(request):
     if request.method == 'POST':
-        form = MessageForm(request.POST)
+        form = MessageForm(request.POST, sender=request.user)
         if form.is_valid():
             message = form.save(commit=False)
             message.sender = request.user
@@ -197,26 +198,28 @@ def send_message(request):
         else:
             messages.error(request, 'Error al enviar el mensaje, por favor corrige el formulario. 😿')
     else:
-        form = MessageForm()
+        form = MessageForm(sender=request.user)
     return render(request, 'blogapp/send_message.html', {
         'form': form,
         'unread_messages_count': Message.objects.filter(receiver=request.user, is_read=False).count()
     })
 
+
+# conversation
 @login_required
 def conversation(request, username):
     user = get_object_or_404(User, username=username)
     if user == request.user:
         messages.error(request, 'No puedes chatear contigo mismo. 😿')
         return redirect('blogapp:inbox')
-    messages = Message.objects.filter(
+    messages_qs = Message.objects.filter(
         sender__in=[request.user, user],
         receiver__in=[request.user, user]
     ).order_by('timestamp')
     Message.objects.filter(receiver=request.user, sender=user, is_read=False).update(is_read=True)
-    form = MessageForm(initial={'receiver': user})
+    form = MessageForm(initial={'receiver': user}, sender=request.user)
     if request.method == 'POST':
-        form = MessageForm(request.POST)
+        form = MessageForm(request.POST, sender=request.user)
         if form.is_valid():
             message = form.save(commit=False)
             message.sender = request.user
@@ -227,7 +230,7 @@ def conversation(request, username):
         else:
             messages.error(request, 'Error al enviar el mensaje, por favor corrige el formulario. 😿')
     return render(request, 'blogapp/conversation.html', {
-        'messages': messages,
+        'messages': messages_qs,
         'form': form,
         'receiver': user,
         'unread_messages_count': Message.objects.filter(receiver=request.user, is_read=False).count()

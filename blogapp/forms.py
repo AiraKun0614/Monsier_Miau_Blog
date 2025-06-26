@@ -20,6 +20,21 @@ class ReviewForm(forms.ModelForm):
         return cleaned_data
 
 class MessageForm(forms.ModelForm):
+    def __init__(self, *args, sender=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if sender:
+            self.sender = sender
+            self.fields['receiver'].queryset = User.objects.exclude(id=sender.id).exclude(is_active=False)
+        else:
+            self.sender = None
+            self.fields['receiver'].queryset = User.objects.exclude(is_active=False)
+
+    def clean_receiver(self):
+        receiver = self.cleaned_data['receiver']
+        if self.sender and receiver == self.sender:
+            raise forms.ValidationError('No puedes enviarte un mensaje a ti mismo. 😿')
+        return receiver
+
     class Meta:
         model = Message
         fields = ['receiver', 'content']
@@ -28,12 +43,3 @@ class MessageForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'rows': 4, 'class': 'w-full p-2 rounded-lg bg-cat-white dark:bg-cat-soft-purple text-gray-900 dark:text-white border border-cat-pink focus:outline-none focus:ring-2 focus:ring-cat-purple'}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['receiver'].queryset = User.objects.exclude(id=kwargs.get('initial', {}).get('sender', None)).exclude(is_active=False)
-
-    def clean_receiver(self):
-        receiver = self.cleaned_data['receiver']
-        if hasattr(self, 'instance') and self.instance.sender == receiver:
-            raise forms.ValidationError('No puedes enviarte un mensaje a ti mismo. 😿')
-        return receiver
