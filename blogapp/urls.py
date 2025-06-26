@@ -1,9 +1,12 @@
 from django.urls import path
 from . import views
-from .views import BlogListView, BlogDetailView, ReviewCreateView, CommentCreateView, BlogCreateView, BlogDeleteView, register, user_login, user_logout
+from .views import (
+    BlogListView, BlogDetailView, ReviewCreateView, CommentCreateView,
+    BlogCreateView, BlogDeleteView, register, user_login, user_logout,
+    inbox, send_message, conversation
+)
 
 app_name = 'blogapp'
-
 
 urlpatterns = [
     path('', BlogListView.as_view(), name='blog_list'),
@@ -11,11 +14,12 @@ urlpatterns = [
     path('blog/<int:pk>/', BlogDetailView.as_view(), name='blog_detail'),
     path('blog/<int:pk>/review/', ReviewCreateView.as_view(), name='add_review'),
     path('blog/<int:blog_pk>/review/<int:review_pk>/comment/', CommentCreateView.as_view(), name='add_comment'),
-    path('blog/<int:pk>/delete/', BlogDeleteView.as_view(), name='delete_blog'),  #ELIMINAR BLOGS
+    path('blog/<int:pk>/delete/', BlogDeleteView.as_view(), name='delete_blog'),
     path('register/', register, name='register'),
     path('login/', user_login, name='login'),
     path('logout/', user_logout, name='logout'),
     path('tinymce/upload/', views.tinymce_upload, name='tinymce_upload'),
-
-   
+    path('inbox/', inbox, name='inbox'),
+    path('send/', send_message, name='send_message'),
+    path('chat/<str:username>/', conversation, name='conversation'),
 ]

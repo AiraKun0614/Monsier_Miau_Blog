@@ -1,14 +1,13 @@
 from django.views.generic import ListView, DetailView, CreateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Blog, Review, Comment, Category
+from .models import Blog, Review, Comment, Category, Message
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
-from .forms import ReviewForm #REVIEW FORMS PARA VALIDACION
-from django.db.models import Avg #CONTEO
-#PARA TINYMCE
+from .forms import ReviewForm, MessageForm
+from django.db.models import Avg
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
@@ -17,17 +16,17 @@ import os
 import uuid
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 
-
-#vistas para el sistema de usuario
-
+# Vistas para el sistema de usuario
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save() #para crear el usuario 
-            login(request, user) #para registro automatico
-            messages.success(request, f' Bienvenido, {user.username}! Tu cuenta ha sido creada.')
+            user = form.save()
+            login(request, user)
+            messages.success(request, f'¡Bienvenido, {user.username}! Tu cuenta ha sido creada.')
             return redirect('blogapp:blog_list')
         else:
             messages.error(request, 'Error al crear el usuario, por favor corrige los errores')
@@ -35,7 +34,6 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'blogapp/register.html', {'form': form})
 
-#vista para el inicio de sesion
 def user_login(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -45,7 +43,7 @@ def user_login(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f' Bienvenido, {user.username}!')
+                messages.success(request, f'¡Bienvenido, {user.username}!')
                 return redirect('blogapp:blog_list')
             else:
                 messages.error(request, 'Credenciales incorrectas')
@@ -55,20 +53,19 @@ def user_login(request):
         form = AuthenticationForm()
     return render(request, 'blogapp/login.html', {'form': form})
 
-#vista para el cierre de sesion
 def user_logout(request):
     logout(request)
     messages.success(request, 'Has cerrado sesión correctamente')
-    return redirect('blogapp:blog_list')  #redirecciona a la pagina principal
+    return redirect('blogapp:blog_list')
 
-
+# Vistas para blogs
 class BlogListView(ListView):
     model = Blog
     template_name = 'blogapp/blog_list.html'
     context_object_name = 'blogs'
-    paginate_by = 5 #PAGINACION
+    paginate_by = 5
 
-    def get_queryset(self): #editado para las categorias
+    def get_queryset(self):
         queryset = Blog.objects.annotate(avg_rating=Avg('reviews__rating')).order_by('-created_at')
         category_id = self.request.GET.get('category')
         if category_id:
@@ -81,16 +78,14 @@ class BlogListView(ListView):
         context['selected_category'] = self.request.GET.get('category')
         return context
 
-
 class BlogDetailView(DetailView):
     model = Blog
     template_name = 'blogapp/blog_detail.html'
     context_object_name = 'blogs'
 
-
 class BlogCreateView(LoginRequiredMixin, CreateView):
     model = Blog
-    fields = ['title', 'content', 'category'] #Se agrega el dato "category"
+    fields = ['title', 'content', 'category']
     template_name = 'blogapp/blog_form.html'
 
     def form_valid(self, form):
@@ -100,11 +95,9 @@ class BlogCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('blogapp:blog_detail', kwargs={'pk': self.object.pk})
 
-# SE AÑADEN CAMBIOS PARA LA RESTRICCIÓN DE USUARIOS -- LoginRequiredMixin
-
-class ReviewCreateView(LoginRequiredMixin, CreateView): #CAMBIOS PARA VALIDACION DE REVIEWS
+class ReviewCreateView(LoginRequiredMixin, CreateView):
     model = Review
-    form_class = ReviewForm  # Usar el formulario personalizado
+    form_class = ReviewForm
     template_name = 'blogapp/review_form.html'
 
     def form_valid(self, form):
@@ -116,9 +109,9 @@ class ReviewCreateView(LoginRequiredMixin, CreateView): #CAMBIOS PARA VALIDACION
     def form_invalid(self, form):
         messages.error(self.request, 'Por favor corrige los errores en el formulario.')
         return super().form_invalid(form)
+
     def get_success_url(self):
         return reverse_lazy('blogapp:blog_detail', kwargs={'pk': self.kwargs['pk']})
-
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
@@ -132,11 +125,10 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('blogapp:blog_detail', kwargs={'pk': self.kwargs['blog_pk']})
-    
 
-class BlogDeleteView (LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class BlogDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Blog
-    template_name = 'blogApp/blog_confirm_delete.html'
+    template_name = 'blogapp/blog_confirm_delete.html'
     success_url = reverse_lazy('blogapp:blog_list')
 
     def test_func(self):
@@ -157,20 +149,85 @@ def tinymce_upload(request):
         return JsonResponse({'error': 'No se proporcionó ninguna imagen'}, status=400)
     
     uploaded_file = request.FILES['file']
-    # Validar tipo de archivo
     allowed_types = ['image/jpeg', 'image/png', 'image/gif']
     if uploaded_file.content_type not in allowed_types:
         return JsonResponse({'error': 'Solo se permiten imágenes (JPEG, PNG, GIF)'}, status=400)
     
-    # Generar nombre único
     ext = uploaded_file.name.split('.')[-1]
     filename = f"{uuid.uuid4()}.{ext}"
     file_path = os.path.join('tinymce', filename)
     
-    # Guardar archivo
     try:
         path = default_storage.save(file_path, ContentFile(uploaded_file.read()))
         file_url = f"{settings.MEDIA_URL}{path}"
         return JsonResponse({'location': file_url})
     except Exception as e:
         return JsonResponse({'error': f'Error al guardar la imagen: {str(e)}'}, status=500)
+
+# Vistas de mensajería
+@login_required
+def inbox(request):
+    messages = Message.objects.filter(receiver=request.user).order_by('-timestamp')
+    paginator = Paginator(messages, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    unread_count = Message.objects.filter(receiver=request.user, is_read=False).count()
+    return render(request, 'blogapp/inbox.html', {
+        'page_obj': page_obj,
+        'unread_messages_count': unread_count
+    })
+
+@login_required
+def send_message(request):
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = request.user
+            if message.sender == message.receiver:
+                messages.error(request, 'No puedes enviarte un mensaje a ti mismo. 😿')
+                return render(request, 'blogapp/send_message.html', {
+                    'form': form,
+                    'unread_messages_count': Message.objects.filter(receiver=request.user, is_read=False).count()
+                })
+            message.save()
+            messages.success(request, '¡Mensaje enviado exitosamente! 🐾')
+            return redirect('blogapp:inbox')
+        else:
+            messages.error(request, 'Error al enviar el mensaje, por favor corrige el formulario. 😿')
+    else:
+        form = MessageForm()
+    return render(request, 'blogapp/send_message.html', {
+        'form': form,
+        'unread_messages_count': Message.objects.filter(receiver=request.user, is_read=False).count()
+    })
+
+@login_required
+def conversation(request, username):
+    user = get_object_or_404(User, username=username)
+    if user == request.user:
+        messages.error(request, 'No puedes chatear contigo mismo. 😿')
+        return redirect('blogapp:inbox')
+    messages = Message.objects.filter(
+        sender__in=[request.user, user],
+        receiver__in=[request.user, user]
+    ).order_by('timestamp')
+    Message.objects.filter(receiver=request.user, sender=user, is_read=False).update(is_read=True)
+    form = MessageForm(initial={'receiver': user})
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = request.user
+            message.receiver = user
+            message.save()
+            messages.success(request, '¡Mensaje enviado exitosamente! 🐾')
+            return redirect('blogapp:conversation', username=username)
+        else:
+            messages.error(request, 'Error al enviar el mensaje, por favor corrige el formulario. 😿')
+    return render(request, 'blogapp/conversation.html', {
+        'messages': messages,
+        'form': form,
+        'receiver': user,
+        'unread_messages_count': Message.objects.filter(receiver=request.user, is_read=False).count()
+    })

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+    {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+                <div class="p-4 rounded-lg bg-{{ message.tags }}-100 dark:bg-{{ message.tags }}-800 text-{{ message.tags }}-700 dark:text-{{ message.tags }}-200 shadow-md transition-all duration-300 animate-fade-in">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <h2 class="text-4xl md:text-5xl font-playful mb-4 text-cat-purple dark:text-white paw-print">Inbox 🐾 ({{ unread_messages_count }} mensajes no leídos)</h2>
+    {% if page_obj %}
+    <ul class="space-y-4">
+        {% for msg in page_obj %}
+        <li class="p-6 bg-cat-white dark:bg-cat-soft-purple rounded-lg shadow-lg">
+            <a href="{% url 'blogapp:conversation' msg.sender.username %}" class="text-cat-purple dark:text-white hover:text-cat-dark-pink dark:hover:text-cat-light-pink font-playful">
+                <strong>{{ msg.sender.username }}</strong>: {{ msg.content|truncatechars:30 }}
+                <span class="text-sm text-gray-700 dark:text-white">({{ msg.timestamp|date:"F d, Y H:i" }})</span>
+            </a>
+        </li>
+        {% empty %}
+        <p class="text-gray-700 dark:text-white">No hay mensajes en tu inbox. 😿</p>
+        {% endfor %}
+    </ul>
+    {% if is_paginated %}
+    <div class="mt-6 flex justify-center space-x-4">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-cat-dark-pink text-white rounded transition-all duration-500 ease-in-out hover:bg-cat-purple">🐾 Anterior</a>
+        {% else %}
+        <span class="px-4 py-2 bg-gray-300 text-gray-500 rounded cursor-not-allowed">🐾 Anterior</span>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}
+        <span class="px-4 py-2 bg-cat-pink text-white rounded">{{ num }}</span>
+        {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+        <a href="?page={{ num }}" class="px-4 py-2 bg-cat-dark-pink text-white rounded transition-all duration-500 ease-in-out hover:bg-cat-purple">{{ num }}</a>
+        {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-cat-dark-pink text-white rounded transition-all duration-500 ease-in-out hover:bg-cat-purple">Siguiente 🐾</a>
+        {% else %}
+        <span class="px-4 py-2 bg-gray-300 text-gray-500 rounded cursor-not-allowed">Siguiente 🐾</span>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+    <p class="text-gray-700 dark:text-white">No hay mensajes en tu inbox. 😿</p>
+    {% endif %}
+    <div class="mt-6">
+        <a href="{% url 'blogapp:send_message' %}" class="px-4 py-2 bg-cat-dark-pink text-white rounded transition-all duration-500 ease-in-out hover:bg-cat-purple paw-print">Enviar nuevo mensaje</a>
+    </div>
+{% endblock %}

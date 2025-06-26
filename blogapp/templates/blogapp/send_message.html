@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+    {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+                <div class="p-4 rounded-lg bg-{{ message.tags }}-100 dark:bg-{{ message.tags }}-800 text-{{ message.tags }}-700 dark:text-{{ message.tags }}-200 shadow-md transition-all duration-300 animate-fade-in">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <h2 class="text-4xl md:text-5xl font-playful mb-4 text-cat-purple dark:text-white paw-print">Enviar mensaje 🐾 ({{ unread_messages_count }} mensajes no leídos)</h2>
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {% for field in form %}
+        <div>
+            <label for="{{ field.id_for_label }}" class="block text-cat-purple dark:text-white font-playful">{{ field.label }}</label>
+            {{ field|add_class:"w-full p-2 rounded-lg bg-cat-white dark:bg-cat-soft-purple text-gray-900 dark:text-white border border-cat-pink focus:outline-none focus:ring-2 focus:ring-cat-purple" }}
+            {% if field.errors %}
+            <p class="text-red-500 text-sm">{{ field.errors|striptags }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="px-4 py-2 bg-cat-dark-pink text-white rounded transition-all duration-500 ease-in-out hover:bg-cat-purple paw-print">Enviar</button>
+    </form>
+    <div class="mt-6">
+        <a href="{% url 'blogapp:inbox' %}" class="text-cat-purple dark:text-white hover:text-cat-dark-pink dark:hover:text-cat-light-pink font-playful">Volver al inbox</a>
+    </div>
+{% endblock %}
