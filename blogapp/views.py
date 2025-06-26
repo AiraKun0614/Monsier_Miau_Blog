@@ -204,7 +204,6 @@ def send_message(request):
         'unread_messages_count': Message.objects.filter(receiver=request.user, is_read=False).count()
     })
 
-
 # conversation
 @login_required
 def conversation(request, username):
@@ -217,6 +216,9 @@ def conversation(request, username):
         receiver__in=[request.user, user]
     ).order_by('timestamp')
     Message.objects.filter(receiver=request.user, sender=user, is_read=False).update(is_read=True)
+    paginator = Paginator(messages_qs, 20)  # Mostrar 20 mensajes por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     form = MessageForm(initial={'receiver': user}, sender=request.user)
     if request.method == 'POST':
         form = MessageForm(request.POST, sender=request.user)
@@ -230,7 +232,7 @@ def conversation(request, username):
         else:
             messages.error(request, 'Error al enviar el mensaje, por favor corrige el formulario. 😿')
     return render(request, 'blogapp/conversation.html', {
-        'messages': messages_qs,
+        'messages': page_obj,  # Usamos page_obj para paginación
         'form': form,
         'receiver': user,
         'unread_messages_count': Message.objects.filter(receiver=request.user, is_read=False).count()

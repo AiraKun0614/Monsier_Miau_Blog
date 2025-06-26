@@ -12,7 +12,7 @@
     {% endif %}
     <h2 class="text-4xl md:text-5xl font-playful mb-4 text-cat-purple dark:text-white paw-print">Chat con {{ receiver.username }} 🐾 ({{ unread_messages_count }} mensajes no leídos)</h2>
     <div class="space-y-4 mb-6">
-        {% for msg in messages %}
+        {% for msg in messages.object_list %}  <!-- Usamos object_list para iterar sobre la página paginada -->
         <div class="p-6 bg-cat-white dark:bg-cat-soft-purple rounded-lg shadow-lg">
             <p><strong class="text-cat-purple dark:text-white font-playful">{{ msg.sender.username }}</strong>: {{ msg.content }}</p>
             <p class="text-sm text-gray-700 dark:text-white">{{ msg.timestamp|date:"F d, Y H:i" }}</p>
@@ -21,6 +21,27 @@
         <p class="text-gray-700 dark:text-white">No hay mensajes en esta conversación. 😿</p>
         {% endfor %}
     </div>
+    {% if messages.has_other_pages %}
+    <div class="mt-6 flex justify-center space-x-4">
+        {% if messages.has_previous %}
+        <a href="?page={{ messages.previous_page_number }}" class="px-4 py-2 bg-cat-dark-pink text-white rounded transition-all duration-500 ease-in-out hover:bg-cat-purple">🐾 Anterior</a>
+        {% else %}
+        <span class="px-4 py-2 bg-gray-300 text-gray-500 rounded cursor-not-allowed">🐾 Anterior</span>
+        {% endif %}
+        {% for num in messages.paginator.page_range %}
+        {% if num == messages.number %}
+        <span class="px-4 py-2 bg-cat-pink text-white rounded">{{ num }}</span>
+        {% elif num > messages.number|add:-3 and num < messages.number|add:3 %}
+        <a href="?page={{ num }}" class="px-4 py-2 bg-cat-dark-pink text-white rounded transition-all duration-500 ease-in-out hover:bg-cat-purple">{{ num }}</a>
+        {% endif %}
+        {% endfor %}
+        {% if messages.has_next %}
+        <a href="?page={{ messages.next_page_number }}" class="px-4 py-2 bg-cat-dark-pink text-white rounded transition-all duration-500 ease-in-out hover:bg-cat-purple">Siguiente 🐾</a>
+        {% else %}
+        <span class="px-4 py-2 bg-gray-300 text-gray-500 rounded cursor-not-allowed">Siguiente 🐾</span>
+        {% endif %}
+    </div>
+    {% endif %}
     <form method="post" class="space-y-4">
         {% csrf_token %}
         {% for field in form %}
